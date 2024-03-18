@@ -1,8 +1,8 @@
 <launch>
 
-<arg name="cloud_topic" default="/kitti/velo/pointcloud"/>
+<arg name="cloud_topic" default="/rslidar_points"/>
 
-  <node name="ground_segmentation" pkg="patchworkpp" type="demo" output="screen">
+  <node name="ground_segmentation" pkg="patchworkpp" type="ground_estimator" output="screen">
     <rosparam command="load" file="$(find patchworkpp)/config/params.yaml" />
     <param name="cloud_topic" value="$(arg cloud_topic)"/>
   </node>

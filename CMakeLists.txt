@@ -69,6 +69,10 @@ add_executable(demo src/demo.cpp)
 target_link_libraries(demo ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(demo patchworkpp_generate_messages_cpp)
 
+add_executable(ground_estimator src/ground_estimate_node.cpp)
+target_link_libraries(ground_estimator ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
+add_dependencies(ground_estimator patchworkpp_generate_messages_cpp)
+
 add_executable(video src/video.cpp)
 target_link_libraries(video ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
 add_dependencies(video patchworkpp_generate_messages_cpp)
