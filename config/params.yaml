@@ -16,7 +16,7 @@ th_seeds: 0.3           # threshold for lowest point representatives using in in
 th_dist: 0.125          # threshold for thickenss of ground.
 th_seeds_v: 0.25        # threshold for lowest point representatives using in initial seeds selection of vertical structural points.
 th_dist_v: 0.1          # threshold for thickenss of vertical structure.
-max_r: 15.0             # max_range of ground estimation area
+max_r: 10.0             # max_range of ground estimation area
 min_r: 0              # min_range of ground estimation area from 2.7m
 uprightness_thr: 0.707  # threshold of uprightness using in Ground Likelihood Estimation(GLE). Please refer paper for more information about GLE.
 

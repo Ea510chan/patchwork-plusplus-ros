@@ -13,6 +13,8 @@
 
 #include "patchworkpp/patchworkpp.hpp"
 
+#include <pcl/filters/radius_outlier_removal.h>
+
 // define XYZIRT point type
 struct VelodynePointXYZIRT {
     PCL_ADD_POINT4D;  // This macro must be present for PCL to handle the point type
@@ -41,6 +43,9 @@ boost::shared_ptr<PatchWorkpp<PointType>> PatchworkppGroundSeg;
 ros::Publisher pub_cloud;
 ros::Publisher pub_ground;
 ros::Publisher pub_non_ground;
+
+// define the radius, calculate the eulidean distance between the point and origin
+double radius_threshold;
 
 // Function to transfer 'ring' and 'time' from nearest point in the original cloud
 template <typename PointT, typename CustomPointT>
@@ -87,11 +92,22 @@ void callbackCloud(const sensor_msgs::PointCloud2::Ptr &cloud_msg)
     pcl::PointCloud<PointType> pc_ground;
     pcl::PointCloud<PointType> pc_non_ground;
     pcl::PointCloud<CustomPointType> pc_raw;
+    pcl::PointCloud<CustomPointType> pc_filtered;
 
     pcl::fromROSMsg(*cloud_msg, pc_raw);
 
-    // Extract XYZI data from VelodynePointXYZIRT and populate the new cloud
+    // DONE: Add a function to filter out the pointcloud in the defined radius
+    // To resolve the nonground point is too big
+    // Filter points based on Euclidean distance from the origin
     for (const auto& pt : pc_raw.points) {
+        double distance = std::sqrt(pt.x * pt.x + pt.y * pt.y + pt.z * pt.z);
+        if (distance <= radius_threshold) {
+            pc_filtered.push_back(pt);
+        }
+    }
+
+    // Extract XYZI data from VelodynePointXYZIRT and populate the new cloud
+    for (const auto& pt : pc_filtered.points) {
         pcl::PointXYZI pt_curr;
         pt_curr.x = pt.x;
         pt_curr.y = pt.y;
@@ -107,7 +123,7 @@ void callbackCloud(const sensor_msgs::PointCloud2::Ptr &cloud_msg)
          << " (running_time: " << time_taken << " sec)" << "\033[0m");
 
     pcl::PointCloud<CustomPointType> pc_ground_xyzirt;
-    transferRingAndTime(pc_ground, pc_raw, pc_ground_xyzirt);
+    transferRingAndTime(pc_ground, pc_filtered, pc_ground_xyzirt);
 
     pub_cloud.publish(cloud2msg(pc_curr, cloud_msg->header.stamp, cloud_msg->header.frame_id));
     pub_ground.publish(cloud2msg(pc_ground_xyzirt, cloud_msg->header.stamp, cloud_msg->header.frame_id));
@@ -123,6 +139,8 @@ int main(int argc, char**argv) {
     std::string cloud_topic;
     std::string robot_ns;
     pnh.param<string>("cloud_topic", cloud_topic, "/pointcloud");
+    // define the radius of the RadiusOutlierRemoval filter
+    pnh.param<double>("max_r", radius_threshold, 0.5);
 
     cout << "Operating patchwork++..." << endl;
     PatchworkppGroundSeg.reset(new PatchWorkpp<PointType>(&pnh));
