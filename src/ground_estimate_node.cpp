@@ -124,10 +124,12 @@ void callbackCloud(const sensor_msgs::PointCloud2::Ptr &cloud_msg)
 
     pcl::PointCloud<CustomPointType> pc_ground_xyzirt;
     transferRingAndTime(pc_ground, pc_filtered, pc_ground_xyzirt);
+    pcl::PointCloud<CustomPointType> pc_non_ground_xyzirt;
+    transferRingAndTime(pc_non_ground, pc_filtered, pc_non_ground_xyzirt);
 
     pub_cloud.publish(cloud2msg(pc_curr, cloud_msg->header.stamp, cloud_msg->header.frame_id));
     pub_ground.publish(cloud2msg(pc_ground_xyzirt, cloud_msg->header.stamp, cloud_msg->header.frame_id));
-    pub_non_ground.publish(cloud2msg(pc_non_ground, cloud_msg->header.stamp, cloud_msg->header.frame_id));
+    pub_non_ground.publish(cloud2msg(pc_non_ground_xyzirt, cloud_msg->header.stamp, cloud_msg->header.frame_id));
 }
 
 int main(int argc, char**argv) {
